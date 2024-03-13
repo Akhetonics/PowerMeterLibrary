@@ -21,7 +21,7 @@ Before you begin, ensure you have met the following requirements:
 Clone the repository to your local machine using:
 
 ```bash
-git clone <repository-url>
+git clone git@github.com:Akhetonics/PowerMeterLibrary.git
 ```
 ## Troubleshooting
 
@@ -36,8 +36,6 @@ To start using this framework, perform the following steps:
 2. Run the main script to start the communication and data processing:
 
 ```bash
-python main_script.py
+python OpticalPowerMeter.py
 ```
-
-Replace `main_script.py` with the actual entry script of your project if it's named differently.
 

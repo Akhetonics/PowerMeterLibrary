@@ -7,7 +7,7 @@ from helpers import convert_number_to_wavelength, extract_number
 class OpticalPowerAndWavelength(DataProcessingStrategy):
     def __init__(self):
         super().__init__(function_nr=1, function_sub_id=0x80)
-        
+
     def process_data(self , controller, data) -> None:
         controller.optical_power = extract_number(data,5,9)
         controller.mode = extract_number(data,9,10)

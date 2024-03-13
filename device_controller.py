@@ -3,11 +3,11 @@ import time
 import struct 
 import serial.tools.list_ports
 
-from commands import Commands
+from commands import CommandTypes, Commands
 from helpers import convert_number_to_wavelength, extract_number
 
 class DeviceController:
-    def __init__(self, dataProcessingStrategies=[]):
+    def __init__(self, dataProcessingStrategies, connectionTimeout = 60):
         self.optical_power = None
         self.reference_power = None
         self.adc_value = None
@@ -17,12 +17,27 @@ class DeviceController:
         self.wavelength = None
         self.battery_level = None
         self.data_processing_strategies = dataProcessingStrategies
+        self.connection_timeout = connectionTimeout
+        self.display_settings_changed = None
+        self.power_data_received = None
     
+    @property
+    def optical_power(self):
+        return self._optical_power
+
+    @optical_power.setter
+    def optical_power(self, value):
+        self._optical_power = value
+        self.power_data_received = True  # set that variable to true to mark that a value has been received - in case we want to wait for this specific value
+
     def __enter__(self):
         self._connect_to_device()
         return self
     
     def __exit__ (self, exc_type, exc_val, exc_tb):
+        self.send_command(Commands.TURN_OFF_LED_BACKLIGHT)
+        if self.wait_for_display_settings_change(0.25) == False: # send again if timeout occured
+            self.send_command(Commands.TURN_OFF_LED_BACKLIGHT)
         self._close_serial_port()
         return False
 
@@ -44,11 +59,11 @@ class DeviceController:
         print("No proper response received from any port.")
         return None
     
-    def _connect_to_device(self, timeout_seconds=60):
+    def _connect_to_device(self):
         start_time = time.time()
         port = None
         while port is None:
-            if time.time() - start_time > timeout_seconds:
+            if time.time() - start_time > self.connection_timeout:
                 print("Connection timeout.")
                 break
             port = self._find_device_port()
@@ -104,63 +119,49 @@ class DeviceController:
         if not self._apply_strategy(data):
             print("could not find a proper strategy for this data block" , data)
 
-    def send_command(self, command):
-        if isinstance(command, Commands):
-            command_to_send = command.value
+    # one can use the command-enum or its value to send the command.
+    def send_command(self, command: Commands):
+        command_type = extract_number( command.value,1,2)
+        if command_type == CommandTypes.POWER_REQUEST.value:
+            self.power_data_received = False
+        if command_type == CommandTypes.DISPLAY_SETTINGS_CHANGE.value:
+            self.display_settings_changed = False
+
+        self.send_data(command.value)
+        time.sleep(0.01) # sleep for 10 milliseconds
+        
+    def wait_for_display_settings_change(self, timeout=2) -> bool:
+        """
+        Waits until `self.display_settings_changed` becomes True or the timeout expires.
+
+        :param timeout: Maximum time to wait in seconds.
+        """
+        start_time = time.time()
+        while time.time() - start_time < timeout:
+            self.receive_data()
+            if self.display_settings_changed:
+                self.display_settings_changed = False
+                return True
+            time.sleep(0.01)  # Sleep for 10 milliseconds before checking again
         else:
-            command_to_send = command
-        self.send_data(command_to_send)
-        data = self.receive_data()
-        return data
+            return False
     
-    def get_optical_power_measurement_result(self):
-        return self.send_command("return_optical_power_measurement_result")
+    def wait_for_power_data_change(self, timeout=2) -> bool:
+        """
+        Waits until `self.power_data_received` becomes True or the timeout expires.
 
-    def switch_wavelength_gear_and_read_reference_power(self):
-        return self.send_command("switch_wavelength_gear_and_read_reference_power")
-
-    def switch_wavelength_gear_directly(self):
-        return self.send_command("switch_wavelength_gear_directly")
-
-    def switch_optical_power_unit_to_uw(self):
-        return self.send_command("switch_optical_power_unit_to_uw")
-
-    def switch_optical_power_unit_to_dbm(self):
-        return self.send_command("switch_optical_power_unit_to_dbm")
-
-    def switch_to_view_reference_value_mode(self):
-        return self.send_command("switch_to_view_reference_value_mode")
-
-    def set_current_optical_power_as_reference(self):
-        return self.send_command("set_current_optical_power_as_reference")
-
-    def switch_led_backlight_off(self):
-        return self.send_command("switch_led_backlight_off")
-
-    def turn_on_led_backlight(self):
-        return self.send_command("turn_on_led_backlight")
-
-    def turn_off_led_backlight(self):
-        return self.send_command("turn_off_led_backlight")
-
-    def auto_power_off(self):
-        return self.send_command("auto_power_off")
-
-    def automatic_shutdown_on(self):
-        return self.send_command("automatic_shutdown_on")
-
-    def reset_optical_power_reference_value(self):
-        return self.send_command("reset_optical_power_reference_value")
-
-    def delete_all_records_of_eeprom(self):
-        return self.send_command("delete_all_records_of_eeprom")
-
-    def returns_the_number_of_stored_power_records(self):
-        return self.send_command("returns_the_number_of_stored_power_records")
-
-    def clear_stored_power_records(self):
-        return self.send_command("clear_stored_power_records")
-
+        :param timeout: Maximum time to wait in seconds.
+        """
+        start_time = time.time()
+        while time.time() - start_time < timeout:
+            self.receive_data()
+            if self.power_data_received:
+                self.power_data_received = False
+                return True
+            time.sleep(0.01)  # Sleep for 10 milliseconds before checking again
+        else:
+            return False
+        
 class DataValidationError(Exception):
     pass
 

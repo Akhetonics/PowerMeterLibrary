@@ -1,20 +1,26 @@
 import time
-from DataProcessingStrategies.optical_power_and_wavelength import OpticalPowerAndWavelength
-from DataProcessingStrategies.optical_power_and_adc import OpticalPowerAndADC
+from DataProcessingStrategies.data_processing_strategy import DataProcessingStrategy
+from StrategyLoader import DataProcessingStrategyLoader
 from commands import Commands
 from device_controller import DeviceController, DataValidationError
 
-# connect to the device
-strategies = [OpticalPowerAndADC(), OpticalPowerAndWavelength()]
+# create a controller and connect to the device
+loader = DataProcessingStrategyLoader("DataProcessingStrategies" , DataProcessingStrategy.__name__) # load all response processing strategies from folder
 
-with DeviceController(strategies) as controller:
-    controller.send_command(Commands.TURN_ON_LED_BACKLIGHT )
+with DeviceController(loader.strategies, connectionTimeout=60) as controller:
+    controller.send_command(Commands.TURN_ON_LED_BACKLIGHT)
+    if controller.wait_for_display_settings_change(0.25) == False: # send again if timeout occured
+            controller.send_command(Commands.TURN_OFF_LED_BACKLIGHT)
     while True:
         try:
-            #controller.send_command(Commands.RETURN_CURRENT_OPTICAL_POWER.value)
-            controller.send_command(Commands.RETURN_POWER_WAVELENGTH_BATTERY )
+            start_time = time.perf_counter()
+            controller.send_command(Commands.RETURN_POWER_WAVELENGTH_BATTERY)
+            controller.wait_for_power_data_change(2)
+            end_time = time.perf_counter()
+            print(f"{((end_time - start_time) *1000):.2f} ms > power measured: {controller.optical_power} \twaveLength {controller.wavelength} \tbattery {controller.battery_level}")
+            time.sleep(0.1)
         except DataValidationError as e:
             print(e)
-        controller.receive_data()
-        print(f"power measured: {controller.optical_power}  adc {controller.adc_value} freq {controller.frequency} pwr_gear {controller.power_adjustment_gear} battery {controller.battery_level}")
-        time.sleep(0.1)
+
+
+

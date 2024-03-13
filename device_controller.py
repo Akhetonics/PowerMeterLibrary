@@ -51,7 +51,7 @@ class DeviceController:
                 time.sleep(0.1)  # Wait for response
                 received_data = ser.read(13)  # Read response
                 ser.close()  # Close the serial connection
-                if len(received_data) == 13:
+                if self._validate_data(received_data , CommandTypes.POWER_REQUEST.value , 0x00):
                     print(f"Successful response from port: {port.device}")
                     return port.device
             except serial.SerialException as e:
@@ -79,7 +79,7 @@ class DeviceController:
         if self.ser is not None:
             self.ser.close()
 
-    def _validate_data(self, data, expected_function_nr, expected_function_sub_nr):
+    def _validate_data(self, data, command_type, expected_function_sub_nr):
         if data is None or len(data) != 13:
             raise DataLengthError("Error: Did not receive enough data.")
         
@@ -88,7 +88,7 @@ class DeviceController:
             raise StartByteError("Error: Start byte is wrong - device is not compatible.")
         
         function_nr = extract_number(data, 1, 2)
-        if function_nr != expected_function_nr:
+        if function_nr != command_type:
             raise FunctionNumberError("Error: Function number is not what was expected.")
         
         function_sub_id = extract_number(data, 2, 3)

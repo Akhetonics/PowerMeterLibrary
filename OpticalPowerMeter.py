@@ -1,20 +1,20 @@
 import time
-from device_controller import DeviceController, DataValidationError, DataLengthError, StartByteError, FunctionNumberError, FunctionSubNumberError
+from DataProcessingStrategies.optical_power_and_wavelength import OpticalPowerAndWavelength
+from DataProcessingStrategies.optical_power_and_adc import OpticalPowerAndADC
+from commands import Commands
+from device_controller import DeviceController, DataValidationError
 
 # connect to the device
-controller = DeviceController()
-controller.connect_to_device()
+strategies = [OpticalPowerAndADC(), OpticalPowerAndWavelength()]
 
-try:
+with DeviceController(strategies) as controller:
+    controller.send_command(Commands.TURN_ON_LED_BACKLIGHT )
     while True:
         try:
-            power = controller.get_current_optical_power()
-            # Use the power variable as needed
-            pass
+            #controller.send_command(Commands.RETURN_CURRENT_OPTICAL_POWER.value)
+            controller.send_command(Commands.RETURN_POWER_WAVELENGTH_BATTERY )
         except DataValidationError as e:
             print(e)
+        controller.receive_data()
+        print(f"power measured: {controller.optical_power}  adc {controller.adc_value} freq {controller.frequency} pwr_gear {controller.power_adjustment_gear} battery {controller.battery_level}")
         time.sleep(0.1)
-finally:
-    # This block ensures the serial port is closed even if the script is interrupted
-    controller.close_serial_port()
-    print("Serial port closed.")

@@ -22,7 +22,7 @@ Clone the repository to your local machine using:
 
 ```bash
 git clone <repository-url>
-
+```
 ## Troubleshooting
 
 - *Device Not Found:* Ensure your device is properly connected - the cable often falls out - and the correct port (usually com3) is available. Try reconnecting your device or restarting the script. (often you might have multiple instances of the script running which will block the serial port.)
@@ -37,6 +37,7 @@ To start using this framework, perform the following steps:
 
 ```bash
 python main_script.py
+```
 
 Replace `main_script.py` with the actual entry script of your project if it's named differently.
 

@@ -44,6 +44,53 @@ Before you begin, ensure you have met the following requirements:
 - Python 3.x installed on your system.
 - `pyserial==3.5` library installed.
 
+## example Code
+``` python
+import asyncio
+from commands import Commands
+from device_controller import DeviceController
+
+# create a controller and connect to the device
+async def main():
+    async with DeviceController(connectionTimeout=60) as controller:
+        while True:
+            # ask the power meter to send us the power
+            controller.send_command(Commands.RETURN_POWER_WAVELENGTH_BATTERY)
+            # wait until the response is there
+            await controller.wait_for_power_data_change_async()
+            print(f"power: {controller.optical_power} \t λ: {controller.wavelength} \t🔋 {controller.battery_level} \t")
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+### background thread
+the power meter controller also supports a background thread that observes all data from the power meter automatically so that you simply have to use them directly or you can let it print the data for you
+
+```python
+# create a controller and connect to the device
+async def main():
+    async with DeviceController(connectionTimeout=60) as controller:
+        # start powermeter controller in background thread
+        controller.start_update_in_background()
+        print("welcome. print 'help' for a quick command reference")
+
+        while True:
+            # handles the console input like 'help' or 'start' and 'stop'
+            input = await async_input()
+
+            if (input == "start"):
+                print("start printing data. enter 'stop' to abort.")
+                await asyncio.sleep(0.2)
+                # the controller is always getting the data from the powermeter as fast as possible (around 8 times per second)
+                # setting 'do_print_data' makes the controller print its power data automatically
+                controller.do_print_data = True
+                # print( controller.optical_power + " in micro Watts")
+            elif (input == "stop"):
+                controller.do_print_data = False
+            await asyncio.sleep(0.01)
+```
+
 ## Installation
 
 Clone the repository to your local machine using:

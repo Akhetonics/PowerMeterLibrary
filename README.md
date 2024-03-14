@@ -2,7 +2,7 @@
 
 This repository contains a Python-based framework designed to facilitate communication with a specific device (e.g., a power meter) and process the data it provides. It employs a strategy pattern to dynamically load and apply data processing algorithms based on the received data, ensuring extensibility and modularity.
 
-<img src="https://github.com/Akhetonics/PowerMeterLibrary/assets/18228325/66fdfefe-dc74-4bbf-9409-1947b7095994" width="100">
+<img src="https://github.com/Akhetonics/PowerMeterLibrary/assets/18228325/66fdfefe-dc74-4bbf-9409-1947b7095994" width="350">
 
 https://resource.fs.com/mall/doc/20230602112425818oyi.pdf
 

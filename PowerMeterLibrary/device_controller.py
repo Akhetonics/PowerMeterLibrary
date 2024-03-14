@@ -41,14 +41,14 @@ class DeviceController:
         self._is_power_data_received = True  # set that variable to true to mark that a value has been received - in case we want to wait for this specific value
 
     async def __aenter__(self):
-        await self._connect_to_device()
+        await self._connect_to_device_async()
         if(self._backlight_enabled):
-            await self.turn_on_backlight(True)
+            await self.turn_on_backlight_async(True)
         return self
     
     async def __aexit__ (self, exc_type, exc_val, exc_tb):
         if(self._backlight_enabled):
-            await self.turn_on_backlight(False)
+            await self.turn_on_backlight_async(False)
         self._close_serial_port()
         return False
     
@@ -56,9 +56,9 @@ class DeviceController:
         if self._update_task is None or self._update_task.done():
             # Zurücksetzen des Stop-Events, um die Schleife in `update` laufen zu lassen
             self._update_stop_event.clear()
-            self._update_task = asyncio.create_task(self.update_looped())
+            self._update_task = asyncio.create_task(self.update_looped_async())
 
-    async def stop_update(self):
+    async def stop_update_async(self):
         # Setzt das Event, um die Schleife in `update` zu stoppen
         self._update_stop_event.set()
         if self._update_task:
@@ -66,12 +66,12 @@ class DeviceController:
             await self._update_task
             self._update_task = None
 
-    async def update_looped(self):
+    async def update_looped_async(self):
         while not self._update_stop_event.is_set():
-            await self.update()
+            await self.update_async()
             await asyncio.sleep(0.001)
 
-    async def update(self):
+    async def update_async(self):
         start_time = time.perf_counter()
         self._command_variation = (self._command_variation +1) % 3
         # fetch the power but use a variety of those commands to get the additional data as well like battery power, reference power etc.
@@ -81,22 +81,22 @@ class DeviceController:
             self.send_command(Commands.RETURN_POWER_ADC_FREQUENCY)
         elif self._command_variation == 2:
             self.send_command(Commands.RETURN_POWER_REFERENCE_POWER)
-        await self.wait_for_power_data_change(2)
+        await self.wait_for_power_data_change_async(2)
         end_time = time.perf_counter()
         self.device_response_time = (end_time - start_time) *1000
         if(self.do_print_data == True):
-            print(f"{(self.device_response_time):.2f} ms > power: {self.optical_power} \t λ: {self.wavelength} \t🔋 {self.battery_level} \tADC: {self.adc_value} \t ref_pwr: {self.reference_power} ")
+            print(f"{(self.device_response_time):.2f} ms > power: {self.optical_power} μW \t λ: {self.wavelength} nm \t🔋 {self.battery_level} \tADC: {self.adc_value} \t ref_pwr: {self.reference_power} ")
 
-    async def turn_on_backlight(self, is_turn_on = True):
+    async def turn_on_backlight_async(self, is_turn_on = True):
         if(is_turn_on == True):
             command = Commands.TURN_ON_LED_BACKLIGHT
         else:
             command = Commands.TURN_OFF_LED_BACKLIGHT
         self.send_command(command)
-        if await self.wait_for_display_settings_change(0.25) == False: # send again if timeout occured
+        if await self.wait_for_display_settings_change_async(0.25) == False: # send again if timeout occured
             self.send_command(command)
 
-    async def _find_device_port(self):
+    async def _find_device_port_async(self):
         available_ports = serial.tools.list_ports.comports()
         for port in available_ports:
             
@@ -120,14 +120,14 @@ class DeviceController:
         print("No proper response received from any port.")
         return None
 
-    async def _connect_to_device(self):
+    async def _connect_to_device_async(self):
         start_time = time.time()
         port = None
         while port is None:
             if time.time() - start_time > self._connection_timeout:
                 print("Connection timeout.")
                 break
-            port = await self._find_device_port()
+            port = await self._find_device_port_async()
             if port:
                 self.ser = serial.Serial(port, 9600, timeout=1)
                 print(f"Connected to device on port: {port}")
@@ -202,7 +202,7 @@ class DeviceController:
 
         self.send_data(command.value)
         
-    async def wait_for_display_settings_change(self, timeout=2) -> bool:
+    async def wait_for_display_settings_change_async(self, timeout=2) -> bool:
         """
         Waits until `self.display_settings_changed` becomes True or the timeout expires.
 
@@ -218,7 +218,7 @@ class DeviceController:
         else:
             return False
     
-    async def wait_for_power_data_change(self, timeout=2) -> bool:
+    async def wait_for_power_data_change_async(self, timeout=2) -> bool:
         """
         Waits until `self.power_data_received` becomes True or the timeout expires.
 

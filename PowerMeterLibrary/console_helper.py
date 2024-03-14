@@ -11,7 +11,7 @@ async def handle_console(controller, input):
     
     input = await async_input()
     if(input == "data"):
-        print(f"{(controller.device_response_time):.2f} ms > power: {controller.optical_power} \t λ: {controller.wavelength} \t🔋 {controller.battery_level} \tADC: {controller.adc_value} \t ref_pwr: {controller.reference_power} ")
+        print(f"{(controller.device_response_time):.2f} ms > power: {controller.optical_power} μW \t λ: {controller.wavelength} nm\t🔋 {controller.battery_level} \tADC: {controller.adc_value} \t ref_pwr: {controller.reference_power} ")
     elif (input == "help"):
         print(f"you can enter the following commands: \n'data', 'battery', 'start', 'stop', 'light', 'exit', ")
     elif(input =="battery"):

@@ -68,6 +68,11 @@ if __name__ == "__main__":
 the power meter controller also supports a background thread that observes all data from the power meter automatically so that you simply have to use them directly or you can let it print the data for you
 
 ```python
+import asyncio
+from commands import Commands
+from console_helper import async_input, handle_console
+from device_controller import DeviceController
+
 # create a controller and connect to the device
 async def main():
     async with DeviceController(connectionTimeout=60) as controller:
@@ -89,6 +94,8 @@ async def main():
             elif (input == "stop"):
                 controller.do_print_data = False
             await asyncio.sleep(0.01)
+if __name__ == "__main__":
+    asyncio.run(main())
 ```
 
 ## Installation

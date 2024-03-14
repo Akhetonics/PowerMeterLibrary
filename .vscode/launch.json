@@ -9,7 +9,7 @@
             "name": "Python Debugger: OpticalPowerMeter",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/OpticalPowerMeter.py",
+            "program": "${workspaceFolder}/PowerMeterLibrary/OpticalPowerMeter.py",
             "console": "integratedTerminal",
             "env": {
                 "PYTHONDEVMODE": "1"

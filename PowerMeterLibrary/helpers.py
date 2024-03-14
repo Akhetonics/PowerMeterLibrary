@@ -14,6 +14,8 @@ def convert_number_to_wavelength(index):
     return wavelengths.get(index, None)
 
 def extract_number(data, start, end):
+        if end < start or len(data) < end:
+            return None
         # Determine the number of bytes
         num_bytes = end - start
         

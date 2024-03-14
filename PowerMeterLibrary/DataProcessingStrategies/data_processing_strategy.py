@@ -6,7 +6,7 @@ class DataProcessingStrategy:
         self.function_nr = function_nr
         self.function_sub_id = function_sub_id
 
-    def process_data(self, controller :DeviceController, data):
+    def process_data(self, controller , data):
         raise NotImplementedError
 
     def applies_to(self, function_nr, function_sub_id):

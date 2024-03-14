@@ -9,5 +9,5 @@ class DisplaySettingsChanged(DataProcessingStrategy):
         super().__init__(function_nr=0x02, function_sub_id=0)
         
     def process_data(self , controller : DeviceController, data) -> None:
-        controller.display_settings_changed = True
+        controller._is_display_settings_changed = True
         return

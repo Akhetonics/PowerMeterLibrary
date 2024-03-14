@@ -115,7 +115,7 @@ class DeviceController:
     def receive_data(self):
         if self.ser.in_waiting < 13: # there is bytes available - we assume, that the first byte is the startbyte 0xAA - to simplify the matter 
             return None
-        data = self.ser.read(13)
+        data = self.ser.read() # read the whole buffer to empty it if a falsy byte sneaked into the buffer
         if not self._apply_strategy(data):
             print("could not find a proper strategy for this data block" , data)
 

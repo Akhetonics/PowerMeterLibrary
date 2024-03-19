@@ -1,6 +1,6 @@
 # Optical Power Meter FOPM-203/204 Communication and Data Processing Framework
 
-This repository contains a Python-based framework designed to facilitate communication with a specific device (e.g., a power meter) and process the data it provides. It employs a strategy pattern to dynamically load and apply data processing algorithms based on the received data, ensuring extensibility and modularity.
+This repository contains a Python-based framework designed to facilitate communication with the [optical power meter by FS.com](https://www.fs.com/de-en/products/97490.html?attribute=25333&id=471143) and process the data it provides. It employs a strategy pattern to dynamically load and apply data processing algorithms based on the received data, ensuring extensibility and modularity.
 
 <img src="https://github.com/Akhetonics/PowerMeterLibrary/assets/18228325/66fdfefe-dc74-4bbf-9409-1947b7095994" width="250">
 

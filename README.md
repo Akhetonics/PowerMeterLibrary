@@ -6,6 +6,9 @@ This repository contains a Python-based framework designed to facilitate communi
 
 [DataSheed](https://resource.fs.com/mall/doc/20230602112425818oyi.pdf)
 
+## This open source project does not have any connection to FS and therefore no support at all. Use at own risk. 
+Also thank you FS for letting us publish this Project as an open source project.
+
 ## Features
 
 - Dynamic loading of data processing strategies.

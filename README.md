@@ -126,6 +126,6 @@ python OpticalPowerMeter.py
 ```
 
 ## Public Funding
-![]([https://gyazo.com/eb5c5741b6a9a16c692170a41a49c858.png](https://github.com/Akhetonics/PowerMeterLibrary/assets/11071537/efda2cdf-257a-4280-bb57-13d2e4bf2c3c) | width=300)
+![](https://github.com/Akhetonics/PowerMeterLibrary/assets/11071537/efda2cdf-257a-4280-bb57-13d2e4bf2c3c) | width=300)
 
 

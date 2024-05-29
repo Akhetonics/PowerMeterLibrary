@@ -121,12 +121,12 @@ To start using this framework, perform the following steps:
 1. Ensure your device is connected to the computer.
 2. Run the main script to start the communication and data processing:
 
-## Public Funding
-
-![H Kofinanziert von der Europäischen Union_POS](https://github.com/Akhetonics/PowerMeterLibrary/assets/11071537/efda2cdf-257a-4280-bb57-13d2e4bf2c3c)
-
-
 ```bash
 python OpticalPowerMeter.py
 ```
+
+## Public Funding
+
+<img src="[image.png](https://github.com/Akhetonics/PowerMeterLibrary/assets/11071537/efda2cdf-257a-4280-bb57-13d2e4bf2c3c)" width="300">
+
 
